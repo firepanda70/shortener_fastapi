@@ -11,7 +11,7 @@ from scr.core.config import settings
 
 config_local = context.config
 
-config_local.set_main_option('sqlalchemy.url', str(settings.db_url))
+config_local.set_main_option('sqlalchemy.url', f'postgresql+asyncpg://{settings.db_url}')
 
 if config_local.config_file_name is not None:
     fileConfig(config_local.config_file_name)
