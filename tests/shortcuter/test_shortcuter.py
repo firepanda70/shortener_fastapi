@@ -250,7 +250,7 @@ def test_disabled_shortcut(disabled_shortcut: URLShortcut):
     response = test_client.get('/api/')
     assert (
         response.status_code == 200
-    ), 'P request to `/api/` endpoint must return status code 200.'
+    ), 'GET request to `/api/` endpoint must return status code 200.'
     assert isinstance(
         response.json(), list
     ), 'GET request to `/api/` endpoint must return `list` object.'
