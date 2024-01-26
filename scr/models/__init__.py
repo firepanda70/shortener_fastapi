@@ -1,0 +1,1 @@
+from scr.models.url_shortcut import URLShortcut
