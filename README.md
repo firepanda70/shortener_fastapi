@@ -29,6 +29,7 @@ Docs will be avaliable [here](http://localhost/docs#/)
 - FastAPI
 - SQLAlchemy
 - PostgreSQL
+- Poetry
 - Docker
 - Nginx
 - Pytest
