@@ -40,9 +40,9 @@ class URLShortcutUpdate(BaseModel):
     @field_validator('shortcut')
     @classmethod
     def validate_shortcut(cls, shortcut: str | None) -> str:
-        if len(shortcut) >= 10:
-            raise ValueError('Shortcut length must be less than 10')
         if shortcut is not None:
+            if len(shortcut) >= 10:
+                raise ValueError('Shortcut length must be less than 10')
             for symbol in shortcut:
                 if symbol not in SHORTCUT_LETTERS:
                     raise ValueError('Shortcut must contain only ASCII letters and digits')

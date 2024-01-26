@@ -165,7 +165,7 @@ def test_create_shortcut(json, freezer):
         'updated_at': '2024-01-01T00:00:00',
         'shortcut_full': f'{settings.host}{shortcut}',
         'disabled': False
-    }, 'Response from GET request to `/api/` endpoint differs from expected'
+    }, 'Response from POST request to `/api/` endpoint differs from expected'
 
 @pytest.mark.parametrize('json', [
     {'url': 'not_url'},
@@ -184,7 +184,7 @@ def test_update_one_invald_data(google_shortcut: URLShortcut, json):
     )
     assert (
         response.status_code == 422
-    ), 'Invalid of forbidden data was accepted on update'
+    ), 'Invalid or forbidden data was accepted on update'
 
 def test_update_conflict_shortcut(
     google_shortcut: URLShortcut, ya_shortcut: URLShortcut
@@ -218,7 +218,7 @@ def test_successfull_update(google_shortcut: URLShortcut, freezer, json):
     )
     assert (
         response.status_code == 200
-    ), 'GET request to `/api/` endpoint must return status code 200.'
+    ), 'PATCH request to `/api/` endpoint must return status code 200.'
     data = response.json()
     validate_keys(data)
     assert data == {
@@ -250,7 +250,7 @@ def test_disabled_shortcut(disabled_shortcut: URLShortcut):
     response = test_client.get('/api/')
     assert (
         response.status_code == 200
-    ), 'GET request to `/api/` endpoint must return status code 200.'
+    ), 'P request to `/api/` endpoint must return status code 200.'
     assert isinstance(
         response.json(), list
     ), 'GET request to `/api/` endpoint must return `list` object.'
