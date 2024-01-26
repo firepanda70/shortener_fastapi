@@ -17,7 +17,7 @@ docker compose up -d --build
 ```
 - Inside web container, run alembic migrations
 ```
-web-1# alembic upgrade head
+web-1 # alembic upgrade head
 ```
 - Done!
 
