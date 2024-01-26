@@ -13,7 +13,7 @@ class URLShortcutService:
     async def create_one(
         self, obj_in: URLShortcutCreate, session: AsyncSession
     ) -> URLShortcut:
-        length = settings.shortcut_min_length
+        length = settings.shortcut_auto_length
         while True:
             shortcut = await get_random_string(length)
             db_obj = await url_shortcut_repo.get_one_by_shorcut(shortcut, session)
