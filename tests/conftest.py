@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from fastapi.testclient import TestClient
-
 import pytest_asyncio
 import pytest
 from mixer.backend.sqlalchemy import Mixer as _mixer
@@ -14,9 +13,8 @@ from scr.core.base import BaseDBModel
 from scr.core.db import get_async_session
 from app import app
 
-BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
-TEST_DB = BASE_DIR / 'test.db'
-SQLALCHEMY_DATABASE_URL = f'sqlite+aiosqlite://{str(TEST_DB)}'
+TEST_DB = 'test.db'
+SQLALCHEMY_DATABASE_URL = f'sqlite+aiosqlite:///{str(TEST_DB)}'
 
 pytest_plugins = [
     'tests.fixtures.data',
@@ -45,6 +43,6 @@ test_client = TestClient(app)
 
 @pytest.fixture
 def mixer():
-    mixer_engine = create_engine(f'sqlite://{str(TEST_DB)}')
+    mixer_engine = create_engine(f'sqlite:///{str(TEST_DB)}')
     session = sessionmaker(bind=mixer_engine)
     return _mixer(session=session(), commit=True)
