@@ -12,5 +12,8 @@ shortcuter_router = APIRouter(include_in_schema=False)
 async def get_redirect(
     shortcut: str, session: AsyncSession = Depends(get_async_session)
 ) -> RedirectResponse:
+    '''
+    Returns redirect response by shortcut string identifier
+    '''
     obj = await url_shortcut_service.get_enabled_shotcut(shortcut, session)
     return RedirectResponse(status_code=obj.status_code, url=obj.url)

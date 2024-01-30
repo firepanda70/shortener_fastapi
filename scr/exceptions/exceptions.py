@@ -1,6 +1,6 @@
 from fastapi import status
 
-from scr.core.exceptions import ValidationException
+from .base import ValidationException
 
 SHORTCUT_NOT_FOUND_MSG = 'Shortcut {0} not found'
 SHORTCUT_DISABLED_MSG = 'Shortcut {0} currently disabled'

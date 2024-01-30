@@ -1,15 +1,22 @@
 from datetime import datetime
+import logging
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from scr.core.config import settings
 from scr.models import URLShortcut
 from scr.schemas import (
     URLShortcutCreate, URLShortcutUpdate
 )
 
+logger = logging.getLogger(__name__)
+logger.setLevel(settings.log_level)
 
 class URLShortcurRepo:
+    '''
+    Contains all DB-related operations for URLShortcut model
+    '''
 
     async def create_one(
         self, obj_in: URLShortcutCreate,
@@ -24,6 +31,7 @@ class URLShortcurRepo:
         session.add(url_shortcut)
         await session.commit()
         await session.refresh(url_shortcut)
+        logger.warn(f'URLShortcut {url_shortcut.id} object created')
         return url_shortcut
 
     async def get_one_by_shorcut(
@@ -53,6 +61,7 @@ class URLShortcurRepo:
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
+        logger.warn(f'URLShortcut {db_obj.id} object updated')
         return db_obj
 
     async def delete_one(
@@ -60,6 +69,7 @@ class URLShortcurRepo:
     ) -> URLShortcut:
         await session.delete(db_obj)
         await session.commit()
+        logger.warn(f'URLShortcut {db_obj.id} object deleted')
         return db_obj
 
 

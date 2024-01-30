@@ -1,10 +1,24 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
 
+from scr.core.base import BaseDBModel
+from scr.core.db import engine
 from scr.routers import main_router
-from scr.core.exceptions import ValidationException
+from scr.exceptions import ValidationException
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    '''
+    Creates migrations in DB on app startup
+    '''
+    async with engine.begin() as conn:
+        await conn.run_sync(BaseDBModel.metadata.create_all)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(main_router)
 
 

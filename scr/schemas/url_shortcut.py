@@ -9,30 +9,42 @@ from scr.core.config import settings, SHORTCUT_LETTERS
 
 
 class URLShortcutCreate(BaseModel):
+    '''
+    Shortcut object create schema
+    '''
     model_config = ConfigDict(extra='forbid')
 
-    url: AnyHttpUrl
-    status_code: int = Field(301, gt=299, lt=309)
+    url: AnyHttpUrl = Field(..., description='URL to create shortcut to.')
+    status_code: int = Field(301, gt=299, lt=309, description='Redirect status code')
 
     @field_validator('url')
     @classmethod
-    def url_not_recursive(cls, v: AnyHttpUrl) -> AnyHttpUrl:
-        if str(v).find(settings.host) == 0:
+    def url_not_recursive(cls, url: AnyHttpUrl) -> AnyHttpUrl:
+        if str(url).find(settings.host) == 0:
             raise ValueError('Recursive shortcuts are forbidden')
-        return v
+        return url
 
 
 class URLShortcutUpdate(BaseModel):
+    '''
+    Shortcut object update schema
+    '''
     model_config = ConfigDict(extra='forbid')
 
-    url: AnyHttpUrl | None = Field(None)
-    status_code: int | None = Field(None, gt=299, lt=309)
-    disabled: bool | None = Field(None)
-    shortcut: str | None = Field(None)
+    url: AnyHttpUrl | None = Field(None, description='URL to create shortcut to')
+    status_code: int | None = Field(None, gt=299, lt=309, description='Redirect status code')
+    disabled: bool | None = Field(None, description='Disabled/enabled shortcut avaliability')
+    shortcut: str | None = Field(
+        None, max_length=16,
+        description='Shortcut unique string identifier. Max length - 16'
+    )
 
     @field_validator('url')
     @classmethod
     def url_not_recursive(cls, url: AnyHttpUrl | None) -> AnyHttpUrl:
+        '''
+        Validates shortcut URL is not recursive
+        '''
         if url is not None and str(url).find(settings.host) == 0:
             raise ValueError('Recursive shortcuts are forbidden')
         return url
@@ -40,9 +52,10 @@ class URLShortcutUpdate(BaseModel):
     @field_validator('shortcut')
     @classmethod
     def validate_shortcut(cls, shortcut: str | None) -> str:
+        '''
+        Validates shortcut contains only allowed symbols
+        '''
         if shortcut is not None:
-            if len(shortcut) >= 10:
-                raise ValueError('Shortcut length must be less than 10')
             for symbol in shortcut:
                 if symbol not in SHORTCUT_LETTERS:
                     raise ValueError('Shortcut must contain only ASCII letters and digits')
@@ -54,15 +67,19 @@ class URLShortcutUpdate(BaseModel):
 
 
 class URLShortcutDB(URLShortcutCreate):
+    '''
+    Shortcut object database schema
+    '''
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    disabled: bool
-    shortcut: str
-    created_at: datetime
-    updated_at: datetime
+    id: int = Field(..., description='DB object identifier')
+    disabled: bool = Field(..., description='Disabled/enabled shortcut avaliability')
+    shortcut: str = Field(..., description='Shortcut unique string identifier')
+    created_at: datetime = Field(..., description='Date object was created')
+    updated_at: datetime = Field(..., description='Date object was updated last time')
 
     @computed_field
     @property
     def shortcut_full(self) -> str:
-        return settings.host + str(self.shortcut)
+        '''Full shortcut URL'''
+        return settings.host + self.shortcut
