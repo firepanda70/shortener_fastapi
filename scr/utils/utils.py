@@ -1,5 +1,4 @@
 import random
-import string
 from scr.core.config import SHORTCUT_LETTERS
 
 
