@@ -81,7 +81,7 @@ UPDATE_SHORTCUT_BODY_EXAMPLES = {
             'url': 'https://google.ru/',
             'status_code': 303,
             'disabled': True,
-            'shortcut': 'unique_shortcut'
+            'shortcut': 'google2'
         },
     },
     'Invalid URL format': {

@@ -11,7 +11,6 @@ from scr.utils import get_random_string
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(settings.log_level)
 
 
 class URLShortcutService:
@@ -44,7 +43,7 @@ class URLShortcutService:
         obj = await url_shortcut_repo.get_one_by_shorcut(shortcut, session)
         if not obj:
             logger.warning(
-                f'Invalid request: URLShortcut obj with shortcut {shortcut} does not exists'
+                f'Invalid request: URLShortcut obj with shortcut `{shortcut}` does not exists'
             )
             raise ShortcutNotFound(shortcut)
         return obj
@@ -60,7 +59,7 @@ class URLShortcutService:
         obj = await self.get_one_by_shorcut(shortcut, session)
         if obj.disabled:
             logger.warning(
-                f'Invalid request: URLShortcut obj with shortcut {shortcut} is disabled'
+                f'Invalid request: URLShortcut obj with shortcut `{shortcut}` is disabled'
             )
             raise ShortcutDisabled(shortcut)
         return obj
@@ -88,7 +87,7 @@ class URLShortcutService:
             )
             if conficted_obj is not None and conficted_obj.id != db_obj.id:
                 logger.warning(
-                    f'Invalid request: URLShortcut obj with shortcut {shortcut} already exists'
+                    f'Invalid request: URLShortcut obj with shortcut `{shortcut}` already exists'
                 )
                 raise ShortcutTaken(update_data.shortcut)
         return await url_shortcut_repo.update_one(db_obj, update_data, session)

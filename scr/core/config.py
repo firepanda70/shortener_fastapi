@@ -3,6 +3,7 @@ import string
 from pydantic_settings import BaseSettings
 
 SHORTCUT_LETTERS = string.ascii_letters + string.digits
+LOG_FORMAT = "%(levelname)s:     %(message)s"
 
 
 class Config(BaseSettings):

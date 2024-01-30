@@ -1,20 +1,25 @@
+import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, HTTPException
 
-from scr.core.base import BaseDBModel
-from scr.core.db import engine
+from scr.core.config import settings, LOG_FORMAT
 from scr.routers import main_router
 from scr.exceptions import ValidationException
 
+logging.basicConfig(level=settings.log_level, format=LOG_FORMAT)
+
+
+def run_migrations():
+    os.system('alembic upgrade head')
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     '''
     Creates migrations in DB on app startup
     '''
-    async with engine.begin() as conn:
-        await conn.run_sync(BaseDBModel.metadata.create_all)
+    run_migrations()
     yield
 
 
