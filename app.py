@@ -11,15 +11,12 @@ from scr.exceptions import ValidationException
 logging.basicConfig(level=settings.log_level, format=LOG_FORMAT)
 
 
-def run_migrations():
-    os.system('alembic upgrade head')
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     '''
     Creates migrations in DB on app startup
     '''
-    run_migrations()
+    os.system('alembic upgrade head')
     yield
 
 
