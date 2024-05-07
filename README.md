@@ -21,7 +21,7 @@ touch .env
 - Fill `.env` file like below
 ```
 DB_URL=docker:docker@pg
-COMPOSE_PROJECT_NAME=shortener_fastapi
+COMPOSE_PROJECT_NAME=shorcuter_fastapi
 POSTGRES_USER=docker
 POSTGRES_PASSWORD=docker
 POSTGRES_DB=docker
@@ -52,6 +52,8 @@ docker logs -f <WEB_CONTAINER_ID>
 - Python 3.12
 - FastAPI
 - SQLAlchemy
+- Pydantic
+- Alembic
 - PostgreSQL
 - Poetry
 - Docker
