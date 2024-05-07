@@ -1,4 +1,3 @@
-# flake8: noqa
 import asyncio
 from logging.config import fileConfig
 
@@ -7,16 +6,15 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from scr.core.config import settings
+from src.core.config import settings
 
 config_local = context.config
-
-config_local.set_main_option('sqlalchemy.url', f'postgresql+asyncpg://{settings.db_url}')
+config_local.set_main_option('sqlalchemy.url', str(settings.db_url))
 
 if config_local.config_file_name is not None:
     fileConfig(config_local.config_file_name)
 
-from scr.core.base import BaseDBModel
+from src.core.alembic import BaseDBModel
 target_metadata = BaseDBModel.metadata
 
 

@@ -8,15 +8,18 @@ Refactor
 '''
 
 import string
+from datetime import datetime
+from typing import Any
 
 import pytest
 
-from conftest import test_client
-from scr.models.url_shortcut import URLShortcut
-from scr.core.config import settings
+from src.core.config import settings
+from src.shortcut.models import Shortcut
+from tests.conftest import test_client
 from .common import validate_keys
 
 SHORTCUT_LETTERS = string.ascii_letters + string.digits
+API_ENDPOINT = '/api/v1/shortcut/'
 
 
 @pytest.mark.parametrize(
@@ -28,9 +31,9 @@ SHORTCUT_LETTERS = string.ascii_letters + string.digits
         f'{settings.host}/recursive_url'
     ],
 )
-def test_create_shortcut_invalid_url(invalid_url):
+def test_create_shortcut_invalid_url(invalid_url: Any):
     response = test_client.post(
-        '/api/',
+        API_ENDPOINT,
         json={'url': invalid_url},
     )
     assert (
@@ -45,9 +48,9 @@ def test_create_shortcut_invalid_url(invalid_url):
         'status_code'
     ]
 )
-def test_create_shortcut_invalid_status_code(status_code):
+def test_create_shortcut_invalid_status_code(status_code: Any):
     response = test_client.post(
-        '/api/',
+        API_ENDPOINT,
         json={
             'url': 'https://ya.ru/',
             'status_code': status_code
@@ -59,16 +62,15 @@ def test_create_shortcut_invalid_status_code(status_code):
 
 
 @pytest.mark.parametrize('json', [
-    {'id': 100500},
     {'shortcut': 'shortcut'},
     {'disabled': True},
     {'created_at': '2024-01-01T00:00:00'},
     {'updated_at': '2024-01-01T00:00:00'},
     {'shortcut_full': f'{settings.host}/shortcut'},
 ])
-def test_create_shortcut_with_autofilling_fields(json):
+def test_create_shortcut_with_autofilling_fields(json: dict[str, Any]):
     response = test_client.post(
-        '/api/',
+        API_ENDPOINT,
         json={
             'url': 'https://ya.ru/',
             'status_code': 301,
@@ -80,77 +82,76 @@ def test_create_shortcut_with_autofilling_fields(json):
     ), 'Autofill fields providing must be forbidden'
 
 
-def test_get_shortcut(google_shortcut: URLShortcut):
-    response = test_client.get('/api/')
+def test_get_shortcut(google_shortcut: Shortcut):
+    response = test_client.get(API_ENDPOINT)
     assert (
         response.status_code == 200
-    ), 'GET request to `/api/` endpoint must return status code 200.'
+    ), f'GET response to `{API_ENDPOINT}` endpoint must return status code 200.'
     assert isinstance(
         response.json(), list
-    ), 'GET request to `/api/` endpoint must return `list` object.'
+    ), f'GET response to `{API_ENDPOINT}` endpoint must return `list` object.'
     assert len(response.json()) == 1, (
-        'GET request did not return expected objects amount from DB'
+        f'GET response to `{API_ENDPOINT}` endpoint did not return expected objects amount from DB'
     )
     data = response.json()[0]
     validate_keys(data)
     assert response.json() == [
         {
-            'created_at': '2024-01-01T00:00:00',
-            'updated_at': '2024-01-01T00:00:00',
-            'id': google_shortcut.id,
-            'url': str(google_shortcut.url),
-            'shortcut': str(google_shortcut.shortcut),
-            'shortcut_full': f'{settings.host}{google_shortcut.shortcut}',
+            'created_at': google_shortcut.created_at.isoformat(),
+            'updated_at': google_shortcut.updated_at.isoformat(),
+            'url': google_shortcut.url,
+            'shortcut': google_shortcut.id,
+            'shortcut_full': f'{settings.host}{google_shortcut.id}',
             'status_code': google_shortcut.status_code,
             'disabled': google_shortcut.disabled,
         }
-    ], 'Response from GET request to `/api/` endpoint differs from expected'
+    ], f'Response from GET request to `{API_ENDPOINT}` endpoint differs from expected'
 
 def test_get_all_shortcuts(
-    google_shortcut: URLShortcut, ya_shortcut: URLShortcut
+    google_shortcut: Shortcut, ya_shortcut: Shortcut
 ):
-    response = test_client.get('/api/')
+    response = test_client.get(API_ENDPOINT)
     assert (
         response.status_code == 200
-    ), 'GET request to `/api/` endpoint must return status code 200.'
+    ), f'GET response to `{API_ENDPOINT}` endpoint must return status code 200.'
     assert isinstance(
         response.json(), list
-    ), 'GET request to `/api/` endpoint must return `list` object.'
+    ), f'GET response to `{API_ENDPOINT}` endpoint must return `list` object.'
     assert len(response.json()) == 2, (
-        'GET request did not return expected objects amount from DB'
+        f'GET response to `{API_ENDPOINT}` endpoint did not return expected objects amount from DB'
     )
     data = response.json()[0]
     validate_keys(data)
     for shortcut in (google_shortcut, ya_shortcut):
         assert (
             {
-                'created_at': '2024-01-01T00:00:00',
-                'updated_at': '2024-01-01T00:00:00',
-                'id': shortcut.id,
-                'url': str(shortcut.url),
-                'shortcut': str(shortcut.shortcut),
-                'shortcut_full': f'{settings.host}{shortcut.shortcut}',
+                'created_at': shortcut.created_at.isoformat(),
+                'updated_at': shortcut.updated_at.isoformat(),
+                'url': shortcut.url,
+                'shortcut': shortcut.id,
+                'shortcut_full': f'{settings.host}{shortcut.id}',
                 'status_code': shortcut.status_code,
                 'disabled': shortcut.disabled,
             } in response.json()
-        ), 'Response from GET request to `/api/` endpoint differs from expected'
+        ), f'Response from GET request to `{API_ENDPOINT}` endpoint differs from expected'
 
 @pytest.mark.parametrize('json', [
     {'url': 'https://ya.ru/'},
     {'url': 'https://ya.ru/', 'status_code': 303},
 ])
-def test_create_shortcut(json, freezer):
-    freezer.move_to('2024-01-01')
+def test_create_shortcut(json: dict[str, Any]):
     response = test_client.post(
-        '/api/',
+        API_ENDPOINT,
         json=json,
     )
     assert (
         response.status_code == 201
-    ), 'POST request to `/api/` endpoint must return status code 201.'
+    ), f'Response from POST request to `{API_ENDPOINT}` endpoint must return status code 201.'
     data = response.json()
     validate_keys(data)
     shortcut = data.pop('shortcut')
+    data.pop('created_at')
+    data.pop('updated_at')
 
     for symbol in shortcut:
         assert (
@@ -160,26 +161,22 @@ def test_create_shortcut(json, freezer):
     assert data == {
         'url': json['url'],
         'status_code': json['status_code'] if 'status_code' in json else 301,
-        'id': 1,
-        'created_at': '2024-01-01T00:00:00',
-        'updated_at': '2024-01-01T00:00:00',
         'shortcut_full': f'{settings.host}{shortcut}',
         'disabled': False
-    }, 'Response from POST request to `/api/` endpoint differs from expected'
+    }, f'Response from POST request to `{API_ENDPOINT}` endpoint differs from expected'
 
 @pytest.mark.parametrize('json', [
     {'url': 'not_url'},
     {'status_code': 404},
-    {'id': 100500},
     {'shortcut': '_=+^%# @'},
     {'shortcut': 'longname' * 10},
     {'created_at': '2024-01-02T00:00:00'},
     {'updated_at': '2024-01-02T00:00:00'},
     {'shortcut_full': f'{settings.host}shortcut'},
 ])
-def test_update_one_invald_data(google_shortcut: URLShortcut, json):
+def test_update_one_invald_data(google_shortcut: Shortcut, json: dict[str, Any]):
     response = test_client.patch(
-        f'/api/{google_shortcut.shortcut}',
+        f'{API_ENDPOINT}{google_shortcut.id}',
         json=json,
     )
     assert (
@@ -187,11 +184,11 @@ def test_update_one_invald_data(google_shortcut: URLShortcut, json):
     ), 'Invalid or forbidden data was accepted on update'
 
 def test_update_conflict_shortcut(
-    google_shortcut: URLShortcut, ya_shortcut: URLShortcut
+    google_shortcut: Shortcut, ya_shortcut: Shortcut
 ):
     response = test_client.patch(
-        f'/api/{google_shortcut.shortcut}',
-        json={'shortcut': ya_shortcut.shortcut},
+        f'{API_ENDPOINT}{google_shortcut.id}',
+        json={'shortcut': ya_shortcut.id},
     )
     assert (
         response.status_code == 400
@@ -209,18 +206,21 @@ def test_update_conflict_shortcut(
         'status_code': 303
     }
 ])
-def test_successfull_update(google_shortcut: URLShortcut, freezer, json):
-    update_datetime = '2024-01-02T00:00:00'
-    freezer.move_to(update_datetime)
+def test_successfull_update(google_shortcut: Shortcut, json: dict[str, Any]):
     response = test_client.patch(
-        f'/api/{google_shortcut.shortcut}',
+        f'{API_ENDPOINT}{google_shortcut.id}',
         json=json,
     )
     assert (
         response.status_code == 200
-    ), 'PATCH request to `/api/` endpoint must return status code 200.'
+    ), f'PATCH request to `{API_ENDPOINT}` endpoint must return status code 200.'
     data = response.json()
     validate_keys(data)
+    updated_at = datetime.fromisoformat(data.pop('updated_at'))
+    created_at = datetime.fromisoformat(data.pop('created_at'))
+    assert (
+        updated_at > created_at,
+    ), f'`updated_at` field shoud be updated on PATCH request to `{API_ENDPOINT}` endpoint'
     assert data == {
         'url': json['url'],
         'status_code': (
@@ -228,57 +228,51 @@ def test_successfull_update(google_shortcut: URLShortcut, freezer, json):
             if 'status_code' in json
             else google_shortcut.status_code
         ),
-        'id': google_shortcut.id,
-        'created_at': '2024-01-01T00:00:00',
-        'updated_at': update_datetime,
         'shortcut': (
             json['shortcut'] if 'shortcut' in json
-            else str(google_shortcut.shortcut)
+            else str(google_shortcut.id)
         ),
         'shortcut_full': f'{settings.host}{
             json['shortcut'] if 'shortcut' in json
-            else str(google_shortcut.shortcut)
+            else str(google_shortcut.id)
         }',
         'disabled': (
             json['disabled'] if 'disabled' in json
             else google_shortcut.disabled
         ),
-    }, f'Response from PATCH request to `/api/{google_shortcut.shortcut}` endpoint differs from expected'
+    }, f'Response from PATCH request to `{API_ENDPOINT}{google_shortcut.id}` endpoint differs from expected'
 
 
-def test_disabled_shortcut(disabled_shortcut: URLShortcut):
-    response = test_client.get('/api/')
+def test_disabled_shortcut(disabled_shortcut: Shortcut):
+    response = test_client.get(API_ENDPOINT)
     assert (
         response.status_code == 200
-    ), 'GET request to `/api/` endpoint must return status code 200.'
+    ), f'GET request to `{API_ENDPOINT}` endpoint must return status code 200.'
     assert isinstance(
         response.json(), list
-    ), 'GET request to `/api/` endpoint must return `list` object.'
+    ), f'GET request to `{API_ENDPOINT}` endpoint must return `list` object.'
     assert len(response.json()) == 0, (
         'Disabled shortcuts should not be returned by default'
     )
 
-    response = test_client.get('/api/', params={'include_disabled': True})
+    response = test_client.get(API_ENDPOINT, params={'include_disabled': True})
     assert (
         response.status_code == 200
-    ), 'GET request to `/api/` endpoint must return status code 200.'
+    ), f'GET request to `{API_ENDPOINT}` endpoint must return status code 200.'
     assert isinstance(
         response.json(), list
-    ), 'GET request to `/api/` endpoint must return `list` object.'
+    ), f'GET request to `{API_ENDPOINT}` endpoint must return `list` object.'
     assert len(response.json()) == 1, (
         'GET request did not return expected objects amount from DB'
     )
     data = response.json()[0]
     validate_keys(data)
-    assert response.json() == [
-        {
-            'created_at': '2024-01-01T00:00:00',
-            'updated_at': '2024-01-01T00:00:00',
-            'id': disabled_shortcut.id,
-            'url': str(disabled_shortcut.url),
-            'shortcut': str(disabled_shortcut.shortcut),
-            'shortcut_full': f'{settings.host}{disabled_shortcut.shortcut}',
-            'status_code': disabled_shortcut.status_code,
-            'disabled': disabled_shortcut.disabled,
-        }
-    ], 'Response from GET request to `/api/` endpoint differs from expected'
+    data.pop('created_at')
+    data.pop('updated_at')
+    assert data == {
+        'url': disabled_shortcut.url,
+        'shortcut': disabled_shortcut.id,
+        'shortcut_full': f'{settings.host}{disabled_shortcut.id}',
+        'status_code': disabled_shortcut.status_code,
+        'disabled': disabled_shortcut.disabled,
+    } , f'Response from GET request to `{API_ENDPOINT}` endpoint differs from expected'

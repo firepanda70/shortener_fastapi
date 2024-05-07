@@ -1,36 +1,32 @@
 from datetime import datetime
 
 import pytest
+from mixer.backend.sqlalchemy import Mixer
 
-from scr.models.url_shortcut import URLShortcut
+from src.shortcut.models import Shortcut
 
 
 @pytest.fixture
-def google_shortcut(freezer, mixer) -> URLShortcut:
-    freezer.move_to('2024-01-01')
+def google_shortcut(mixer: Mixer) -> Shortcut:
     return mixer.blend(
-        'scr.models.url_shortcut.URLShortcut',
-        created_at=datetime.now(), updated_at=datetime.now(),
-        url='https://www.google.com/', shortcut='google2',
+        'src.shortcut.models.Shortcut',
+        url='https://www.google.com/', id='google2',
         status_code=301, disabled=False
     )
 
 @pytest.fixture
-def ya_shortcut(freezer, mixer) -> URLShortcut:
-    freezer.move_to('2024-01-01')
+def ya_shortcut(mixer: Mixer) -> Shortcut:
     return mixer.blend(
-        'scr.models.url_shortcut.URLShortcut',
-        created_at=datetime.now(), updated_at=datetime.now(),
-        url='https://ya.ru/', shortcut='ya2',
+        'src.shortcut.models.Shortcut',
+        url='https://ya.ru/', id='ya2',
         status_code=302, disabled=False
     )
 
 @pytest.fixture
-def disabled_shortcut(freezer, mixer) -> URLShortcut:
-    freezer.move_to('2024-01-01')
+def disabled_shortcut(mixer: Mixer) -> Shortcut:
+    now = datetime.now()
     return mixer.blend(
-        'scr.models.url_shortcut.URLShortcut',
-        created_at=datetime.now(), updated_at=datetime.now(),
-        url='https://ya.ru/', shortcut='ya2',
+        'src.shortcut.models.Shortcut',
+        url='https://ya.ru/', id='ya2',
         status_code=301, disabled=True
     )

@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from fastapi.testclient import TestClient
 import pytest_asyncio
 import pytest
@@ -9,9 +7,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import create_engine
 
-from scr.core.base import BaseDBModel
-from scr.core.db import get_async_session
-from app import app
+from src.core.models import BaseDBModel
+from src.core.database import get_async_session
+from src.main import app
 
 TEST_DB = 'test.db'
 SQLALCHEMY_DATABASE_URL = f'sqlite+aiosqlite:///{str(TEST_DB)}'

@@ -1,4 +1,4 @@
-from scr.core.config import settings
+from src.core.config import settings
 
 OK_SHORTCUT_DATA = {
     'url': 'https://www.google.com/',
@@ -135,7 +135,7 @@ UPDATE_SHORTCUT_RESPONSES = {
         'content': {
             'application/json': {
                 'example': {
-                    'detail': 'Shortcut <shortcut> already in use'
+                    'detail': 'Shortcut already in use'
                 }
             }
         },
@@ -145,7 +145,7 @@ UPDATE_SHORTCUT_RESPONSES = {
         'content': {
             'application/json': {
                 'example': {
-                    'detail': 'Shortcut <shortcut> not found'
+                    'detail': 'Shortcut not found'
                 }
             }
         },
@@ -166,7 +166,7 @@ DELETE_SHORTCUT_RESPONSES = {
         'content': {
             'application/json': {
                 'example': {
-                    'detail': 'Shortcut <shortcut> not found'
+                    'detail': 'Shortcut not found'
                 }
             }
         },

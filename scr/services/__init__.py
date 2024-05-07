@@ -1,1 +1,0 @@
-from .url_shortcut import url_shortcut_service

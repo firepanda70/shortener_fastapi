@@ -1,7 +1,6 @@
 def validate_keys(data):
     keys = sorted(
         [
-            'id',
             'created_at',
             'updated_at',
             'url',
